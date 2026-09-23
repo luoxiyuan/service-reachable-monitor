@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "service-reachable-monitor"
+version = "1.0.0"
+description = "Config-driven reachability monitor for HTTP endpoints and ZooKeeper-registered Dubbo services."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+keywords = ["monitoring", "dubbo", "zookeeper", "http", "healthcheck", "alerting"]
+dependencies = [
+    "requests>=2.28",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dubbo = ["kazoo>=2.9"]
+mysql = ["PyMySQL>=1.1"]
+schedule = ["APScheduler>=3.10"]
+dev = ["pytest>=7.0", "kazoo>=2.9", "APScheduler>=3.10"]
+
+[project.scripts]
+service-monitor = "service_monitor.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

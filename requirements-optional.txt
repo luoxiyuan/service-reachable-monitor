@@ -1,0 +1,11 @@
+# ZooKeeper based Dubbo discovery checks
+kazoo>=2.9
+
+# Optional MySQL metadata store (owner lookup / interface inventory)
+PyMySQL>=1.1
+
+# Built-in cron scheduler (`monitor schedule`)
+APScheduler>=3.10
+
+# Test suite
+pytest>=7.0

@@ -1,0 +1,67 @@
+# ---------------------------------------------------------------------------
+# What to monitor. Copy to config/targets.yaml and adapt to your own estate.
+#
+# Structure:
+#   environments[]            one block per test/staging environment
+#     http_targets[]          HTTP(S) endpoints probed with a real request
+#     dubbo                   ZooKeeper-registered Dubbo services
+# ---------------------------------------------------------------------------
+
+defaults:
+  http:
+    timeout: 10            # seconds, per attempt
+    retries: 1             # extra attempts before declaring DOWN
+    verify_tls: true
+    follow_redirects: true
+    expect_status: [200]   # status codes treated as healthy
+    method: GET
+  dubbo:
+    timeout: 10            # ZooKeeper session timeout, seconds
+    probe_port: true       # additionally TCP-connect provider ip:port
+    fail_if_no_provider: true   # consumers exist but no provider => DOWN
+
+environments:
+  - name: env-a
+    label: "Environment A"
+    ip: 10.0.0.11          # optional; only used to enrich reports
+    enabled: true
+
+    http_targets:
+      - name: gateway-api
+        url: https://api.example.com/health
+        owner: 13800138000        # optional; used for @-mentions
+        expect_status: [200]
+        expect_body: '"status":"UP"'   # optional substring assertion
+      - name: web-console
+        url: https://console.example.com/
+        owner: 13800138000
+        retries: 2
+
+    dubbo:
+      zk_hosts: zk1.example.com:2181,zk2.example.com:2181
+      root_path: services_env_a
+      # Only alert on interfaces belonging to these applications.
+      applications:
+        - demo-order-server
+        - demo-user-server
+      include_interfaces: []        # empty => all
+      exclude_interfaces:           # supports * wildcards
+        - "*.internal.DebugService"
+      owners:                       # application => contact
+        demo-order-server:
+          desc: "Order service"
+          phone: 13800138000
+        demo-user-server:
+          desc: "User service"
+          phone: 13800138000
+
+  - name: env-b
+    label: "Environment B"
+    ip: 10.0.0.12
+    enabled: false                  # skipped unless --all is passed
+    http_targets:
+      - name: gateway-api
+        url: https://api-b.example.com/health
+    dubbo:
+      zk_hosts: zk3.example.com:2181
+      root_path: services_env_b

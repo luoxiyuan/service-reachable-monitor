@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------------------
+# Notification configuration.
+# Copy to config/notify.yaml and replace the placeholders.
+# Secrets must NOT be hard-coded here: reference them from the environment
+# with ${VAR_NAME}, and put the real values in .env (git-ignored).
+# ---------------------------------------------------------------------------
+
+# Global throttle: many chat robots reject more than ~20 messages per minute.
+rate_limit:
+  max_per_minute: 20
+  batch_size: 5          # how many failed targets are merged into one message
+  wait_seconds: 60       # pause once the per-minute budget is exhausted
+
+# Channels are tried in order; the first enabled channel that succeeds wins.
+channels:
+  - type: console        # always prints to stdout; safe for CI logs
+    enabled: true
+
+  - type: dingtalk
+    enabled: false
+    webhook: ${DINGTALK_WEBHOOK}
+    secret: ${DINGTALK_SECRET}   # optional signed-secret (SEC...) support
+    at_all: false
+    at_mobiles: []               # filled per target from `owner` when set
+
+  - type: wecom
+    enabled: false
+    webhook: ${WECOM_WEBHOOK}
+    at_all: false
+
+  - type: feishu
+    enabled: false
+    webhook: ${FEISHU_WEBHOOK}
+
+  - type: webhook
+    enabled: false
+    url: ${CUSTOM_WEBHOOK_URL}
+    timeout: 10
+
+# Optional legacy alarm-center (phone callout) used for critical failures.
+alarm_center:
+  enabled: false
+  url: ${ALARM_CENTER_URL}
+  fallback_number: ${ALARM_CENTER_FALLBACK_NUMBER}
